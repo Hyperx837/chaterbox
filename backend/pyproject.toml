@@ -1,0 +1,20 @@
+[tool.poetry]
+name = "chaterbox-api"
+version = "0.1.0"
+description = "A simple chat app backend"
+authors = ["Anupama Dissanayake <61502343+Hyperx837@users.noreply.github.com>"]
+license = "MIT"
+
+[tool.poetry.dependencies]
+python = "^3.10"
+fastapi = "^0.79.0"
+uvicorn = "^0.18.2"
+
+[tool.poetry.dev-dependencies]
+flake8 = "^5.0.0"
+black = "^22.6.0"
+mypy = "^0.971"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"

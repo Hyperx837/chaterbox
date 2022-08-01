@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { socket } from "../utils";
+import { FiSend } from "react-icons/fi";
 
 function Chatroom() {
   const inputEl = useRef(null);
@@ -31,16 +32,19 @@ function Chatroom() {
 
   return (
     <div className="text-white">
-      <h1>WebSocket Chat for {user}</h1>
+      <span className="text-[3rem]">Hey there {user}!!</span>
       <ul ref={msgs}></ul>
-      <input
-        ref={inputEl}
-        onKeyDown={(e) => e.key === "Enter" && sendMessage()}
-        className="text-black"
-      />
-      <button onClick={sendMessage}>Send</button>
+      <div className="absolute top-[calc(100vh-70px)] left-10 h-32">
+        <input
+          ref={inputEl}
+          onKeyDown={(e) => e.key === "Enter" && sendMessage()}
+          className="h-10 rounded-md w-[800px] bg-[#323949] px-5"
+        />
+        <button onClick={sendMessage} className="m-[-30px] pt-10">
+          <FiSend />
+        </button>
+      </div>
       <br />
-      <button onClick={() => navigate("/")}>Back to login</button>
     </div>
   );
 }
