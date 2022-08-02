@@ -7,6 +7,11 @@ body {
   background-position: center;
   background-size: cover;
   backdrop-filter: blur(30px); */
+  overflow: hidden;
+}
+input:focus,
+textarea:focus {
+  outline: none;
 }
 
 @layer utilities {

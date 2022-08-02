@@ -8,6 +8,17 @@ const Login = () => {
   const onClick = () => {
     socket.username = inputEl.current.value;
     inputEl.current.value = "";
+    fetch("http://localhost:8000/adduser", {
+      method: "POST",
+      body: JSON.stringify({
+        username: socket.username,
+        userid: socket.userid,
+      }),
+      headers: {
+        "Content-type": "application/json; charset=UTF-8",
+        // "Access-Control-Request-Method": "POST",
+      },
+    });
     navigate("/chat");
   };
 
