@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { FiSend } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
 import { socket } from "../utils";
+import Contact from "./Contact";
 
 function Chatroom() {
   const inputEl = useRef(null);
@@ -14,27 +15,27 @@ function Chatroom() {
     inputEl.current.value = "";
   };
   socket.onmessage((e) => {
-    let li = document.createElement("li");
     console.log(e.data);
-    let data = JSON.parse(e.data);
-    let msg =
-      data.username === socket.username
-        ? `You: ${data.message}`
-        : `${data.username}: ${data.message}`;
-    li.appendChild(document.createTextNode(msg));
-    li.className = data.username === socket.username ? "text-right" : "";
-    msgs.current.appendChild(li);
   });
   useEffect(() => {
     if (!socket.username) {
       navigate("/");
     }
   }, [navigate]);
+  // let avatar_urls = {
+  //   anupama: "https://avatars.dicebear.com/api/avataaars/gobbaya.svg",
+  //   janadhi: "https://avatars.dicebear.com/api/avataaars/janadhi",
+  //   shanya: "https://avatars.dicebear.com/api/avataaars/shanya.svg",
+  //   visal: "https://avatars.dicebear.com/api/avataaars/visal.svg",
+  // };
 
   return (
     <div className="text-white p-5">
       <span className="text-[3rem]">Hey there {user}!!</span>
-      <ul ref={msgs}></ul>
+      {/* {avatar_urls.keys().map((name) => (
+        <Contact name={name} avatar_url={avatar_urls[name]} />
+      ))} */}
+      <ul ref={msgs} id="msgs"></ul>
       <div className="absolute top-[calc(100vh-70px)] right-20 h-32">
         <input
           ref={inputEl}

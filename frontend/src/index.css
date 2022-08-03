@@ -3,10 +3,6 @@
 @tailwind utilities;
 
 body {
-  /* background-image: url("https://img.freepik.com/free-photo/cool-futuristic-abstract-background-with-shining-neon-lights_181624-10997.jpg?w=2000");
-  background-position: center;
-  background-size: cover;
-  backdrop-filter: blur(30px); */
   overflow: hidden;
 }
 input:focus,

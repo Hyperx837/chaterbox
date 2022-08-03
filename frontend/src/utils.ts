@@ -27,9 +27,27 @@ export class Socket {
     if (this.ws) this.ws.send(JSON.stringify(data));
   }
   onmessage(callback: any) {
-    if (this.ws) {
-      this.ws.onmessage = callback;
-    }
+    if (!this.ws) return;
+
+    this.ws.onmessage = (e) => {
+      let data = JSON.parse(e.data);
+      switch (data["type"]) {
+        case "message":
+          let li = document.createElement("li");
+          let msg =
+            data.username === this.username
+              ? `You: ${data.message}`
+              : `${data.username}: ${data.message}`;
+          li.appendChild(document.createTextNode(msg));
+          li.className = data.username === this.username ? "text-right" : "";
+          let msgs = document.getElementById("msgs");
+          if (msgs) msgs.appendChild(li);
+          break;
+
+        case "newuser":
+          break;
+      }
+    };
   }
 }
 

@@ -16,7 +16,6 @@ const Login = () => {
       }),
       headers: {
         "Content-type": "application/json; charset=UTF-8",
-        // "Access-Control-Request-Method": "POST",
       },
     });
     navigate("/chat");

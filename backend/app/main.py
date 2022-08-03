@@ -1,15 +1,17 @@
-from collections import defaultdict
-
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
+from uvicorn import Config, Server
 
-from .db import database as db
-from .models import User
+from app.chat import manager
+from app.routes import user
+
+from .utils import loop
 
 app = FastAPI()
 
 origins = ["http://localhost:3000"]
 
+app.include_router(user.router)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
@@ -22,40 +24,11 @@ app.add_middleware(
 # new user, msg, user left
 
 
-class ConnectionManager:
-    def __init__(self):
-        self.chatrooms: defaultdict[int, list[WebSocket]] = defaultdict(list)
-
-    async def connect(self, websocket: WebSocket, user_id: int, room_id: int):
-        await websocket.accept()
-        await self.broadcast({"newuser": user_id}, room_id)
-        self.chatrooms[room_id].append(websocket)
-
-    def disconnect(self, websocket: WebSocket, room_id: int):
-        self.chatrooms[room_id].remove(websocket)
-
-    async def send_personal_message(self, message: str, websocket: WebSocket):
-        await websocket.send_text(message)
-
-    async def broadcast(self, message: dict | str | bytes, room_id: int):
-        for connection in self.chatrooms[room_id]:
-            match message.__class__.__name__:
-                case "str":
-                    await connection.send_text(message)  # type: ignore
-                case "bytes":
-                    await connection.send_bytes(message)  # type: ignore
-                case "dict":
-                    await connection.send_json(message)
-
-
-manager = ConnectionManager()
-
-
 @app.websocket("/ws/{chatroom_id}")
 async def websocket_endpoint(
     websocket: WebSocket, username: str, id: int, chatroom_id: int
 ):
-    await manager.connect(websocket, id, chatroom_id)
+    await manager.connect(websocket, chatroom_id)
     try:
         while True:
             msg = await websocket.receive_json()
@@ -67,13 +40,7 @@ async def websocket_endpoint(
         await manager.broadcast(f"{username} left the chat", chatroom_id)
 
 
-@app.post("/adduser")
-async def add_user(user: User):
-    await db.users.insert_one(user.dict())
-    return {"status": "200 OK"}
-
-
-@app.get("/user/{id}")
-async def get_user(id: int):
-    ob: dict = await db.users.find_one({"userid": id}, {"_id": 0})
-    return ob
+def main():
+    config = Config(app=app, loop=loop, reload=True)
+    server = Server(config)
+    loop.run_until_complete(server.serve())
