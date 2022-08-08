@@ -15,3 +15,28 @@ textarea:focus {
     font-family: "Montserrat Alternates";
   }
 }
+
+.right {
+  @apply text-right;
+}
+
+.template {
+  display: grid;
+  height: 100vh;
+
+  grid-template: repeat(12, 1fr) / repeat(10, 1fr);
+}
+
+.header {
+  grid-column: span 10;
+}
+
+.contact {
+  grid-column: span 4;
+  grid-row: span 11;
+}
+
+.chat {
+  grid-column: span 6;
+  grid-row: span 11;
+}

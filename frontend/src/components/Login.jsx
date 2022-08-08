@@ -1,6 +1,6 @@
 import { useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { socket } from "../utils";
+import { socket } from "../socket";
 
 const Login = () => {
   const inputEl = useRef(null);
@@ -8,11 +8,11 @@ const Login = () => {
   const onClick = () => {
     socket.username = inputEl.current.value;
     inputEl.current.value = "";
-    fetch("http://localhost:8000/adduser", {
+    fetch("http://localhost:8000/user/new", {
       method: "POST",
       body: JSON.stringify({
         username: socket.username,
-        userid: socket.userid,
+        id: socket.userid,
       }),
       headers: {
         "Content-type": "application/json; charset=UTF-8",
