@@ -1,5 +1,6 @@
 from app.sockets import manager
 from app.database import database as db
+from app.logger import logger
 from app.models import User
 from fastapi import APIRouter
 
@@ -11,6 +12,11 @@ async def add_user(user: User):
     await db.users.insert_one(user.dict())
     await manager.broadcast("user.new", {"userid": user.id})
     return {"status": "200 OK"}
+
+
+@router.get("/online")
+async def get_online_users():
+    return [*manager.users.keys()]
 
 
 @router.get("/{id}")

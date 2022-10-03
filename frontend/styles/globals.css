@@ -4,6 +4,7 @@
 
 body {
   overflow: hidden;
+  background-color: #212129;
 }
 input:focus,
 textarea:focus {

@@ -1,10 +1,10 @@
 import { useRef } from "react";
-import { useNavigate } from "react-router-dom";
+import { useRouter } from "next/router";
 import { socket } from "../socket";
 
 const Login = () => {
   const inputEl = useRef(null);
-  const navigate = useNavigate();
+  const router = useRouter();
   const onClick = () => {
     socket.username = inputEl.current.value;
     inputEl.current.value = "";
@@ -18,7 +18,7 @@ const Login = () => {
         "Content-type": "application/json; charset=UTF-8",
       },
     });
-    navigate("/chat");
+    router.push("/chat");
   };
 
   return (

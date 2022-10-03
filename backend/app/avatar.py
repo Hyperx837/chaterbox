@@ -14,8 +14,6 @@ def random_avatar():
         "gridy",
         "micah",
     ]
-    seed = "".join(random.choice(string.printable) for _ in range(6))
-    url = quote(
-        f"https://avatars.dicebear.com/api/{random.choice(spirits)}/{seed}.svg", safe=""
-    )
+    seed = quote("".join(random.choice(string.printable) for _ in range(6)), safe="")
+    url = f"https://avatars.dicebear.com/api/{random.choice(spirits)}/{seed}.svg"
     return url

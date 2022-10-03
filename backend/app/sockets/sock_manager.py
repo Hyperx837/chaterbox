@@ -28,15 +28,14 @@ class ConnectionManager:
         connections = (
             self.users.values() if room_id is None else self.chatrooms[room_id]
         )
-        data = {"type": scope, "payload": message}
         for connection in connections:
-            match type(message).__name__:
-                case "str":
-                    await connection.send_text(data)  # type: ignore
-                case "bytes":
-                    await connection.send_bytes(data)  # type: ignore
-                case "dict":
-                    await connection.send_json(data)
+            match message:
+                case str():
+                    await connection.send_text(message)  # type: ignore
+                case bytes():
+                    await connection.send_bytes(message)  # type: ignore
+                case dict():
+                    await connection.send_json({"type": scope, "payload": message})
 
 
 manager = ConnectionManager()

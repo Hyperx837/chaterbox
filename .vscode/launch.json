@@ -12,6 +12,24 @@
         "host": "localhost",
         "port": 5678
       }
+    },
+    {
+      "name": "Launch localhost",
+      "type": "firefox",
+      "request": "launch",
+      "reAttach": true,
+      "url": "http://localhost:3000/",
+      "webRoot": "${workspaceFolder}/frontend",
+      "pathMappings": [
+        {
+          "url": "file:///home/cyberbully37/.drives/drv1/programming/fullstack/chaterbox/frontend/src",
+          "path": "${workspaceFolder}/frontend/src"
+        },
+        {
+          "url": "file:///home/cyberbully37/.drives/drv1/programming/fullstack/chaterbox/frontend/src",
+          "path": "${workspaceFolder}/frontend/src"
+        }
+      ]
     }
   ]
 }

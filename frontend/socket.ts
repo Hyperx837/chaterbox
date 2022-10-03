@@ -1,16 +1,24 @@
-const getUserName = async (id: number | undefined) => {
-  if (!id) return;
-  return await fetch(`http://localhost:8000/user/${id}`, {
-    method: "GET",
-  }).then((res) => res.json());
+export const getUserName = async (id: number) => {
+  let url = `http://localhost:8000/user/${id}`;
+  let user = await fetch(url).then((res) => res.json());
+
+  return user;
 };
+
+interface Payload {
+  userid: number;
+  message: string;
+}
 
 interface Data {
   type: string;
-  payload: {
-    userid: number;
-    message: string;
-  };
+  payload: Payload;
+}
+
+export interface User {
+  userid: number;
+  username: string;
+  avatar_url: string;
 }
 
 export class Socket {
@@ -18,12 +26,14 @@ export class Socket {
   userid: number;
   ws: WebSocket | undefined;
   userCallbacks: CallableFunction[];
+  newUserCallbacks: CallableFunction[];
 
   constructor() {
     this._username = "";
     this.userid = Date.now();
     this.ws = undefined;
     this.userCallbacks = [];
+    this.newUserCallbacks = [];
   }
   set username(value: string) {
     this._username = value;
@@ -36,30 +46,33 @@ export class Socket {
   get username() {
     return this._username;
   }
-  onUserChange(callback: CallableFunction) {
-    this.userCallbacks.push(callback);
-  }
   send(data: any) {
     if (this.ws) this.ws.send(JSON.stringify(data));
+  }
+  onNewUser(callback: CallableFunction) {
+    if (this.newUserCallbacks.includes(callback)) return;
+    this.newUserCallbacks.push(callback);
+  }
+  onUserChange(callback: CallableFunction) {
+    if (this.userCallbacks.includes(callback)) return;
+    this.userCallbacks.push(callback);
   }
   onmessage() {
     if (!this.ws) return;
 
     this.ws.onmessage = (e) => {
-      console.log(e.data);
       let li = document.createElement("li");
       let { type, payload }: Data = JSON.parse(e.data);
-      getUserName(payload.userid).then((user) => {
+      getUserName(payload.userid).then((user: User) => {
+        if (this.userid === payload.userid) return;
         switch (type) {
           case "message":
-            let msg = `${
-              payload.userid === this.userid ? "You" : user.username
-            }: ${payload.message}`;
-            li.appendChild(document.createTextNode(msg));
-            li.className = payload.userid === this.userid ? "right" : "";
+            li = createMessage(payload.message, user.username);
             break;
 
           case "user.new":
+            // console.log(user);
+            this.newUserCallbacks.map((callback) => callback(user));
             li.appendChild(
               document.createTextNode(`${user.username} enterned the chat`)
             );
@@ -77,6 +90,13 @@ export class Socket {
       });
     };
   }
+}
+
+export function createMessage(message: string, username: string) {
+  let li = document.createElement("li");
+  let msg = `${username}: ${message}`;
+  li.appendChild(document.createTextNode(msg));
+  return li;
 }
 
 export const socket = new Socket();

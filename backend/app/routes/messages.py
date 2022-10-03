@@ -1,13 +1,13 @@
-from app.models import User
 from app.sockets import manager
-from fastapi import APIRouter
+from fastapi import APIRouter, WebSocket
 
-router = APIRouter(prefix="/messages")
+router = APIRouter()
 
 
-@router.post("/direct/{id}")
-async def some_action(id: int, user: User):
-    reciever = manager.users[user.id]
-    msg = await reciever.receive_text()
+@router.websocket("/direct/{id}")
+async def some_action(websocket: WebSocket, id: int):
+    msg = await websocket.receive_text()
     reciever = manager.users[id]
-    await reciever.send_json({"type": "message.direct", "payload": {"message": msg}})
+    await reciever.send_json(
+        {"type": "message.direct", "payload": {"message": msg, "userid": id}}
+    )
