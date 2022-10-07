@@ -22,6 +22,14 @@
       "webRoot": "${workspaceFolder}/frontend",
       "pathMappings": [
         {
+          "url": "webpack://_n_e",
+          "path": "${workspaceFolder}/frontend"
+        },
+        {
+          "url": "webpack://_n_e",
+          "path": "${workspaceFolder}/frontend"
+        },
+        {
           "url": "file:///home/cyberbully37/.drives/drv1/programming/fullstack/chaterbox/frontend/src",
           "path": "${workspaceFolder}/frontend/src"
         },
