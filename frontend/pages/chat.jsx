@@ -1,38 +1,47 @@
 import Contact from "components/Contact";
+import Message from "components/Message";
 import Head from "next/head";
 import { useRouter } from "next/router";
 import { useEffect, useRef, useState } from "react";
 import { FiSend } from "react-icons/fi";
-import { createMessage, getUserName, socket } from "../socket";
+import { getUserName, socket } from "../socket";
 
 function Chatroom() {
   const inputEl = useRef(null);
-  const msgs = useRef(null);
   const [user, setUser] = useState(socket.username);
+  const [messages, setMessages] = useState([]);
   const [avatars, setAvatars] = useState([]);
-  useEffect(() => {
+  const updateOnlineUsers = () => {
     fetch("http://localhost:8000/user/online").then(async (res) => {
-      for (let userid of await res.json()) {
-        let { username, id, avatar_url } = await getUserName(userid);
-        setAvatars([[id, username, avatar_url]]);
-      }
+      let onlineUsers = await res.json();
+
+      Promise.all(
+        onlineUsers.map(async (userid) => await getUserName(userid))
+      ).then((res) => setAvatars(res));
     });
-    socket.onUserChange((user) => setUser(user));
-    socket.onNewUser(({ id, username, avatar_url }) => {
-      setAvatars((avatars) => [...avatars, [id, username, avatar_url]]);
+  };
+  useEffect(() => {
+    updateOnlineUsers();
+    socket.on("userChange", (user) => setUser(user));
+    socket.on("newUser", (_) => {
+      updateOnlineUsers();
     });
   }, []);
   const router = useRouter();
+  const lastMessageRef = useRef(null);
   const sendMessage = () => {
     let msg = inputEl.current.value;
-    let li = createMessage(msg, "You");
-    let msgs = document.getElementById("msgs");
-    if (msgs) msgs.appendChild(li);
-    li.className = "right";
-
     socket.send(msg);
+    setMessages([...messages, [user.avatar_url, msg, true, Math.random()]]);
     inputEl.current.value = "";
   };
+  useEffect(() => {
+    // 👇️ scroll to bottom every time messages change
+    lastMessageRef.current?.scrollIntoView({ behavior: "smooth" });
+    socket.on("newMessage", (user, msg, msgID) => {
+      setMessages([...messages, [user.avatar_url, msg, false, msgID]]);
+    });
+  }, [messages]);
   useEffect(() => {
     if (!socket.username) {
       router.push("/");
@@ -42,7 +51,7 @@ function Chatroom() {
   return (
     <>
       <Head>
-        <title>Chaterbox</title>
+        <title>{`Chat of ${user}`}</title>
         <meta name="chaterbox" content="chat app" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
@@ -50,11 +59,21 @@ function Chatroom() {
         <span className="text-[3rem] col-span-10 ">Hey there {user}!!</span>
         <div className="w-full col-span-4 row-start-2 row-end-[13] mt-10 border border-white">
           {avatars.map((data) => {
-            let [id, username, url] = data;
-            return <Contact name={username} avatar_url={url} key={id} />;
+            let { id, username, avatar_url } = data;
+            return <Contact name={username} avatar_url={avatar_url} key={id} />;
           })}
         </div>
-        <ul ref={msgs} id="msgs" className="col-span-6"></ul>
+        <div
+          className="col-span-6 overflow-auto row-start-[2] row-end-[12] p-3 pb-4"
+          // ref={lastMessageRef}
+        >
+          {messages.map(([avatar, msg, sent, msgID]) => (
+            <Message avatar={avatar} key={msgID} sent={sent}>
+              {msg}
+            </Message>
+          ))}
+          <div ref={lastMessageRef}></div>
+        </div>
         <div className="flex flex-row col-start-5 row-start-[12] col-span-6 place-self-center">
           <input
             ref={inputEl}

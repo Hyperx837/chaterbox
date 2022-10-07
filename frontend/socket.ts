@@ -8,6 +8,7 @@ export const getUserName = async (id: number) => {
 interface Payload {
   userid: number;
   message: string;
+  messageID: number;
 }
 
 interface Data {
@@ -18,44 +19,49 @@ interface Data {
 export interface User {
   userid: number;
   username: string;
-  avatar_url: string;
+  avatarURL: string;
+}
+interface Callbacks {
+  userChange: CallableFunction[];
+  newUser: CallableFunction[];
+  newMessage: CallableFunction[];
 }
 
 export class Socket {
   private _username: string;
   userid: number;
   ws: WebSocket | undefined;
-  userCallbacks: CallableFunction[];
-  newUserCallbacks: CallableFunction[];
+  callbacks: Callbacks;
 
   constructor() {
     this._username = "";
     this.userid = Date.now();
     this.ws = undefined;
-    this.userCallbacks = [];
-    this.newUserCallbacks = [];
+    this.callbacks = {
+      userChange: [],
+      newUser: [],
+      newMessage: [],
+    };
   }
   set username(value: string) {
     this._username = value;
     this.ws = new WebSocket(
       `ws://localhost:8000/ws/0?username=${value}&id=${this.userid}`
     );
-    this.userCallbacks.map((callback) => callback(this._username));
+    this.callbacks.userChange.map((callback) => callback(this._username));
     this.onmessage();
   }
   get username() {
     return this._username;
   }
   send(data: any) {
-    if (this.ws) this.ws.send(JSON.stringify(data));
+    this.ws?.send(JSON.stringify(data));
   }
-  onNewUser(callback: CallableFunction) {
-    if (this.newUserCallbacks.includes(callback)) return;
-    this.newUserCallbacks.push(callback);
-  }
-  onUserChange(callback: CallableFunction) {
-    if (this.userCallbacks.includes(callback)) return;
-    this.userCallbacks.push(callback);
+
+  on(e: "userChange" | "newUser" | "newMessage", callback: CallableFunction) {
+    const { [e]: callbackArray } = this.callbacks; // @ts-ignore
+    if (callbackArray.includes(callback)) return;
+    callbackArray.push(callback);
   }
   onmessage() {
     if (!this.ws) return;
@@ -67,15 +73,19 @@ export class Socket {
         if (this.userid === payload.userid) return;
         switch (type) {
           case "message":
-            li = createMessage(payload.message, user.username);
+            // li = createMessage(payload.message, user.username);
+            console.log(payload.message);
+            this.callbacks.newMessage.map((callback) =>
+              callback(user, payload.message, payload.messageID)
+            );
             break;
 
           case "user.new":
-            // console.log(user);
-            this.newUserCallbacks.map((callback) => callback(user));
+            this.callbacks.newUser.map((callback) => callback(user));
             li.appendChild(
               document.createTextNode(`${user.username} enterned the chat`)
             );
+            li.className = "text-center";
             break;
 
           case "user.leave":
