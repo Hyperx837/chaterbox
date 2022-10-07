@@ -1,4 +1,5 @@
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
+import random
 from fastapi.middleware.cors import CORSMiddleware
 from uvicorn import Config, Server
 
@@ -26,7 +27,7 @@ async def websocket_endpoint(websocket: WebSocket, id: int, chatroom_id: int):
     try:
         while True:
             msg = await websocket.receive_json()
-            data = {"message": msg, "userid": id}
+            data = {"message": msg, "userid": id, "message_id": random.random()}
             await manager.broadcast("message", data, chatroom_id)
 
     except WebSocketDisconnect:
