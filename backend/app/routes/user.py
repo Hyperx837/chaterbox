@@ -11,7 +11,7 @@ router = APIRouter(prefix="/user")
 async def add_user(user: User):
     await db.users.insert_one(user.dict())
     await manager.broadcast("user.new", {"userid": user.id})
-    return {"status": "200 OK"}
+    return user
 
 
 @router.get("/online")
