@@ -1,22 +1,25 @@
-import { useRef } from "react";
 import { useRouter } from "next/router";
+import { useRef } from "react";
 import { socket } from "../socket";
 
 const Login = () => {
   const inputEl = useRef(null);
   const router = useRouter();
   const onClick = () => {
-    socket.username = inputEl.current.value;
+    socket.user.name = inputEl.current.value;
     inputEl.current.value = "";
     fetch("http://localhost:8000/user/new", {
       method: "POST",
       body: JSON.stringify({
-        username: socket.username,
-        id: socket.userid,
+        username: socket.user.name,
+        id: socket.user.id,
       }),
       headers: {
         "Content-type": "application/json; charset=UTF-8",
       },
+    }).then(async (res) => {
+      let { avatar_url } = await res.json();
+      socket.user.avatar = avatar_url;
     });
     router.push("/chat");
   };
