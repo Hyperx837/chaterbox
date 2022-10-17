@@ -1,22 +1,19 @@
 import { useRouter } from "next/router";
 import { useRef } from "react";
+import { getInputValue } from "utils";
 import { socket } from "../socket";
 
 const Login = () => {
-  const inputEl = useRef(null);
+  const inputEl = useRef<HTMLInputElement>(null);
   const router = useRouter();
   const onClick = () => {
-    socket.user.name = inputEl.current.value;
-    inputEl.current.value = "";
+    socket.user.name = getInputValue(inputEl);
     fetch("http://localhost:8000/user/new", {
       method: "POST",
       body: JSON.stringify({
         username: socket.user.name,
         id: socket.user.id,
       }),
-      headers: {
-        "Content-type": "application/json; charset=UTF-8",
-      },
     }).then(async (res) => {
       let { avatar_url } = await res.json();
       socket.user.avatar = avatar_url;
@@ -35,13 +32,6 @@ const Login = () => {
           type="text"
           onKeyDown={(e) => e.key === "Enter" && onClick()}
         />
-        {/* <input
-          ref={inputEl}
-          className="w-10/12 max-w-96  h-10 rounded-lg px-6 text-black text-lg mt-2"
-          placeholder="Chatroom Number (0 default)"
-          type="text"
-          onKeyDown={(e) => e.key === "Enter" && onClick()}
-        /> */}
         <button
           className="w-52 h-12 text-center text-xl bg-sky-400 rounded-lg mt-10 font-alternates"
           onClick={onClick}
