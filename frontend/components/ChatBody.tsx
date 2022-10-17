@@ -1,21 +1,15 @@
 import { useEffect, useRef, useState } from "react";
 import { FiSend } from "react-icons/fi";
-import { socket, User } from "socket";
+import { socket } from "socket";
+import { MessageComponent, User } from "types";
+import { getInputValue } from "utils";
 import Message from "./Message";
-
-interface MessageComponent {
-  avatar: string;
-  msg: string;
-  sentByUser: boolean;
-  msgID: number;
-}
 
 const ChatBody = () => {
   const [messages, setMessages] = useState<MessageComponent[]>([]);
   const lastMessageRef = useRef<HTMLDivElement>(null);
   const inputEl = useRef<HTMLInputElement>(null);
   useEffect(() => {
-    // 👇️ scroll to bottom every time messages change
     lastMessageRef.current?.scrollIntoView({ behavior: "smooth" });
     socket.on("newMessage", (user: User, msg: string, msgID: number) => {
       setMessages([
@@ -30,8 +24,8 @@ const ChatBody = () => {
     });
   }, [messages]);
   const sendMessage = () => {
-    if (!inputEl.current) return;
-    let msg = inputEl.current.value;
+    let msg = getInputValue(inputEl);
+    if (!msg) return;
     socket.send(msg);
     setMessages([
       ...messages,
@@ -42,7 +36,6 @@ const ChatBody = () => {
         msgID: Math.random(),
       },
     ]);
-    inputEl.current.value = "";
     fetch("http://localhost:8000/message/new", {
       method: "POST",
       body: JSON.stringify({
@@ -50,17 +43,11 @@ const ChatBody = () => {
         content: msg,
         author: socket.user.id,
       }),
-      headers: {
-        "Content-type": "application/json; charset=UTF-8",
-      },
     });
   };
   return (
     <>
-      <div
-        className="col-span-6 overflow-auto row-start-[2] row-end-[12] p-3 pb-4"
-        // ref={lastMessageRef}
-      >
+      <div className="col-span-6 overflow-auto row-start-[2] row-end-[12] p-3 pb-4">
         {messages.map(({ avatar, msg, sentByUser, msgID }) => {
           return (
             <Message avatar={avatar} key={msgID} sent={sentByUser}>
