@@ -43,6 +43,9 @@ const ChatBody = () => {
         content: msg,
         author: socket.user.id,
       }),
+      headers: {
+        "Content-type": "application/json; charset=UTF-8",
+      },
     });
   };
   return (
@@ -67,7 +70,7 @@ const ChatBody = () => {
         <button onClick={sendMessage} className="ml-[-40px]">
           <FiSend size={22} />
         </button>
-      </div>{" "}
+      </div>
     </>
   );
 };

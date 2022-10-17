@@ -21,5 +21,5 @@ async def add_message(message: Message):
 
 
 @router.get("/message/{id}")
-async def get_user(id: int) -> dict:
+async def get_message(id: int) -> dict:
     return await db.messages.find_one({"id": id}, {"_id": 0})

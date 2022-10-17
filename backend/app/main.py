@@ -1,20 +1,22 @@
-from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 import random
+
+from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
 from uvicorn import Config, Server
 
-from app.routes import user
+from app.routes import messages, user
 from app.sockets import manager
 from app.utils import loop
 
 app = FastAPI()
 
-origins = ["http://localhost:3000"]
 
 app.include_router(user.router)
+app.include_router(messages.router)
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=origins,
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

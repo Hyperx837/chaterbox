@@ -1,3 +1,4 @@
+import ChatBody from "components/ChatBody";
 import Contact from "components/Contact";
 import Head from "next/head";
 import { useRouter } from "next/router";
@@ -14,11 +15,8 @@ function Chatroom() {
 
   const updateOnlineUsers = () => {
     fetch("http://localhost:8000/user/online").then(async (res) => {
-      let onlineUsers = await res.json();
-
-      Promise.all(
-        onlineUsers.map(async (userid: number) => await getUserName(userid))
-      ).then((res) => setAvatars(res));
+      let onlineUsers: number[] = await res.json();
+      setAvatars(await Promise.all(onlineUsers.map(getUserName)));
     });
   };
   useEffect(() => {
@@ -44,13 +42,14 @@ function Chatroom() {
       <div className="text-white p-5 grid grid-rows-[repeat(12,1fr)] grid-cols-10 h-[100vh] gap-5">
         <span className="text-[3rem] col-span-10 ">Hey there {user}!!</span>
         <div className="w-full col-span-4 row-start-2 row-end-[13] mt-10 border border-white">
-          {avatars.map((user) => {
+          {avatars.map((user: User) => {
+            console.table(user);
             if (!user) return;
             let { id, name, avatar } = user;
             return <Contact name={name} avatar_url={avatar} key={id} />;
           })}
         </div>
-
+        <ChatBody />
         <br />
       </div>
     </>

@@ -11,12 +11,15 @@ const Login = () => {
     fetch("http://localhost:8000/user/new", {
       method: "POST",
       body: JSON.stringify({
-        username: socket.user.name,
+        name: socket.user.name,
         id: socket.user.id,
       }),
+      headers: {
+        "Content-type": "application/json; charset=UTF-8",
+      },
     }).then(async (res) => {
-      let { avatar_url } = await res.json();
-      socket.user.avatar = avatar_url;
+      let { avatar } = await res.json();
+      socket.user.avatar = avatar;
     });
     router.push("/chat");
   };
