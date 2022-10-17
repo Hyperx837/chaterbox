@@ -1,27 +1,11 @@
+import { Data, User } from "types";
+
 export const getUserName = async (id: number): Promise<User> => {
   let url = `http://localhost:8000/user/${id}`;
   let user = await fetch(url).then((res) => res.json());
 
   return user;
 };
-
-interface Payload {
-  userid: number;
-  message: string;
-  messageID: number;
-}
-
-interface Data {
-  type: string;
-  payload: Payload;
-}
-
-export interface User {
-  id: number;
-  name: string;
-  avatar: string;
-  _username: string;
-}
 
 export class Socket {
   user: User;
