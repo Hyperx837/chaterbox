@@ -1,5 +1,5 @@
-from app.models import Message
 from app.database import database as db
+from app.models import Message
 from app.sockets import manager
 from fastapi import APIRouter, WebSocket
 
@@ -15,6 +15,11 @@ async def some_action(websocket: WebSocket, id: int):
     )
 
 
-@router.get("/message/{id}")
+@router.post("/message/new")
 async def add_message(message: Message):
     await db.messages.insert_one(message.dict())
+
+
+@router.get("/message/{id}")
+async def get_user(id: int) -> dict:
+    return await db.messages.find_one({"id": id}, {"_id": 0})
