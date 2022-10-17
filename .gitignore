@@ -24,4 +24,4 @@ yarn-error.log*
 
 # python
 __pycache__
-
+./tailwind.config.js
